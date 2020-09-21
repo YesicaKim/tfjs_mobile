@@ -1,20 +1,10 @@
-<!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, user-scalable=yes, initial-scale=1, maximum-scale=1">
     <title>Demo</title>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@1.0.1"></script>
   </head>
-	<button>Click me</button>
-<script>
-  alert('Start!');
-  button = document.querySelector('button');
-  function alertClick() {
-    alert('Click!');
-  };
-  button.onclick = alertClick;
-</script>
   <body>
     <video playsinline autoplay></video>
     <button>Take snapshot</button>
@@ -23,15 +13,17 @@
     <script>
       video = document.querySelector('video');
       canvas = document.querySelector('canvas');
+      button = document.querySelector('button');
       canvas.width = 48;
       canvas.height = 48;
       canvas.style.filter = 'grayscale(1)';
       video.style.transform = 'scaleX(-1)';
 
-            span = document.querySelector('span');
-            span.style.fontSize = '48px';
+      span = document.querySelector('span');
+      span.style.fontSize = '48px';
 
-            const LABELS = {
+
+      const LABELS = {
         0: '🤬', // angry
         1: '🤢', // disgust
         2: '😱', // fear
@@ -40,8 +32,12 @@
         5: '😲', // surprise
         6: '😐' // neutral
       }
+      
+      function classifyCallback(predictions) {
+        alert(predictions[0].className + ':' + predictions[0].probabaility);
+      }
 
-	async function predict() {
+      async function predict() {
         const model = await tf.loadLayersModel('./model/model.json');
 
         image = tf.browser.fromPixels(canvas);
@@ -54,11 +50,11 @@
         image.dispose();
         logits.dispose();
         console.log(results);
-
+        
         span.innerHTML = LABELS[i];
       }
 
-	    button.onclick = function() {
+      button.onclick = function() {
         w = video.videoWidth;
         h = video.videoHeight;
         s = Math.min(w, h);
@@ -68,41 +64,25 @@
         canvas.getContext('2d').drawImage(video, sx=sx, sy=sy, swidth=s,
           sheight=s, x=0, y=0, width=48, height=48);
 
-                span.innerHTML = '⌛';
+        span.innerHTML = '⌛';
         predict();
     };
 
 
-	constraints = {
-	  audio: false,
-	  video: true
-	};
+    constraints = {
+      audio: false,
+      video: true
+    };
 
-	function handleSuccess(stream) {
-	  video.srcObject = stream;
-	}
+    function handleSuccess(stream) {
+      video.srcObject = stream;
+    }
 
-	function handleError(error) {
-	  alert('navigator.MediaDevices.getUserMedia error: ' + error.message + error.name);
-	}
+    function handleError(error) {
+      alert('navigator.MediaDevices.getUserMedia error: ' + error.message + error.name);
+    }
 
-	navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
-	</script>
-
-	<!--	
-	<img src="cat2.jpg">
-	<script>
-		 img = document.querySelector('img');
-		mobilenet.load().then(model => {
-		  model.classify(img).then(predictions => {
-		    alert(predictions[0].className + ': ' + predictions[0].probability);
-		    console.log(predictions);
-		  });
-		});
-	</script>
-	<input type="file" accept="image/*">
-	<img>
-	<script>input = document.querySelector('input'); img = document.querySelector('img'); 		input.onchange = function() { img.src = URL.createObjectURL(input.files[0]); };</script>
-	-->
+    navigator.mediaDevices.getUserMedia(constraints).then(handleSuccess).catch(handleError);
+</script>
   </body>
 </html>
